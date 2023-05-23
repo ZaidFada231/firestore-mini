@@ -1,8 +1,8 @@
 import "./App.css";
 import React, { useEffect, useState } from "react";
 import { fetchData } from "./firebase";
-import { TextField, Button, Checkbox } from "@mui/material";
-import { addDoc, collection } from "firebase/firestore";
+import { TextField, Button } from "@mui/material";
+import { updateDoc, doc, addDoc, collection } from "firebase/firestore";
 import { db } from "./firebase";
 
 function App() {
@@ -21,7 +21,7 @@ function App() {
   const handleInputChange = (event) => {
     setVoteText(event.target.value);
   };
-  
+
   const handleVoteSubmit = async () => {
     try {
       const docRef = await addDoc(collection(db, "responses-collection"), {
@@ -35,6 +35,18 @@ function App() {
       console.error("Error adding vote:", error);
     }
   };
+  const handleUpvote = async (item) => {
+    try {
+      const docRef = doc(db, "responses-collection", item.responseId);
+      await updateDoc(docRef, {
+        upvotes: item.upvotes + 1,
+      });
+      console.log("Vote updated for ID: ", item.responseId);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating vote:", error);
+    }
+  };
 
   return (
     <div className="App">
@@ -42,7 +54,14 @@ function App() {
         <h1>What's your favorite food?</h1>
         {data.map((item) => (
           <div key={item.responseId}>
-            {item.responseText} - {item.upvotes} <Checkbox />
+            {item.responseText} - {item.upvotes}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleUpvote(item)}
+            >
+              Upvote
+            </Button>
           </div>
         ))}
         <br></br>

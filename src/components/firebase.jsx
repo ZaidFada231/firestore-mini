@@ -16,7 +16,13 @@ export { db };
 export const fetchData = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, "responses-collection"));
-    const responseData = querySnapshot.docs.map((doc) => doc.data());
+    const responseData = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        responseId: doc.id,
+        ...data,
+      };
+    });
     return responseData;
   } catch (error) {
     console.error("Error fetching data:", error);
